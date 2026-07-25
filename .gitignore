@@ -1,0 +1,12 @@
+*.o
+*.obj
+obj/
+winflash
+winflash-gui
+build/
+.vscode/
+.idea/
+*.swp
+*.swo
+src/core/bootdata.h
+/tmp/
