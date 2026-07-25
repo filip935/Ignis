@@ -3,7 +3,7 @@
 A lightweight, native C GUI utility for quickly flashing Windows ISOs onto USB drives on Linux.
 
 ## Features
-- **Fast & Minimal:** Written in C with a tiny footprint (~215KB).
+- **Fast & Minimal:** Written in C with a tiny binary (~215KB).
 - **Native GUI:** Built natively for Linux desktop environments (GTK4).
 - **Open Source:** Released under the MIT License.
   
