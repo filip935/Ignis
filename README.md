@@ -7,7 +7,8 @@ A lightweight, native C GUI utility for quickly flashing Windows ISOs onto USB d
 - **Native GUI:** Built natively for Linux desktop environments (GTK4).
 - **Open Source:** Released under the MIT License.
   
-<img width="722" height="582" alt="Screenshot_2026-07-25_12-47-59" src="https://github.com/user-attachments/assets/f8ee7c31-1834-4fe2-98ee-f007f91920e1" />
+<img width="705" height="572" alt="Zrzut ekranu_20260726_130043" src="https://github.com/user-attachments/assets/c34edd5a-6959-4094-bf21-ba58e46686e0" />
+
 
 ## Prerequisites
 
