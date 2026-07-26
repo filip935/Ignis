@@ -11,8 +11,8 @@ HEADER="${OUTDIR}/bootdata.h"
 echo "Generating boot data..."
 echo "  Output: ${HEADER}"
 
-echo "#ifndef WINFLASH_BOOTDATA_H" > "${HEADER}"
-echo "#define WINFLASH_BOOTDATA_H" >> "${HEADER}"
+echo "#ifndef IGNIS_BOOTDATA_H" > "${HEADER}"
+echo "#define IGNIS_BOOTDATA_H" >> "${HEADER}"
 echo "" >> "${HEADER}"
 
 # 1. Read GRUB boot.img (512 bytes MBR stage1)
@@ -78,5 +78,5 @@ else
 fi
 
 echo "" >> "${HEADER}"
-echo "#endif /* WINFLASH_BOOTDATA_H */" >> "${HEADER}"
+echo "#endif /* IGNIS_BOOTDATA_H */" >> "${HEADER}"
 echo "Done."

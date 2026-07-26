@@ -1,5 +1,5 @@
-#ifndef WINFLASH_GUI_H
-#define WINFLASH_GUI_H
+#ifndef IGNIS_GUI_H
+#define IGNIS_GUI_H
 
 #include "../core/flash.h"
 #include "../core/device.h"
@@ -30,12 +30,12 @@ typedef struct {
     char last_status[256];
     FlashStage last_stage;
     volatile int idle_queued;
-} WinFlashApp;
+} IgnisApp;
 
-WinFlashApp *winflash_app_new(void);
-void winflash_app_free(WinFlashApp *app);
-void winflash_app_setup_window(WinFlashApp *app, GtkApplication *application);
-void winflash_app_show_error(GtkWidget *parent, const char *title, const char *message);
-void winflash_app_log(WinFlashApp *app, const char *fmt, ...);
+IgnisApp *ignis_app_new(void);
+void ignis_app_free(IgnisApp *app);
+void ignis_app_setup_window(IgnisApp *app, GtkApplication *application);
+void ignis_app_show_error(GtkWidget *parent, const char *title, const char *message);
+void ignis_app_log(IgnisApp *app, const char *fmt, ...);
 
 #endif

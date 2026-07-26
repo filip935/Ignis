@@ -6,9 +6,9 @@
 #include "../util/util.h"
 #include <stdarg.h>
 
-static void refresh_device_list(WinFlashApp *app);
-static void update_ui_on_device_change(WinFlashApp *app);
-static void update_flash_button_state(WinFlashApp *app);
+static void refresh_device_list(IgnisApp *app);
+static void update_ui_on_device_change(IgnisApp *app);
+static void update_flash_button_state(IgnisApp *app);
 static void on_iso_changed(GtkEditable *ed, gpointer user_data);
 static void on_device_changed(GObject *obj, GParamSpec *pspec, gpointer user_data);
 static void on_mode_changed(GObject *obj, GParamSpec *pspec, gpointer user_data);
@@ -21,8 +21,8 @@ static int flash_progress_cb(FlashStage stage, int percent, const char *status, 
 static gpointer flash_thread_func(gpointer user_data);
 static gboolean flash_completed_idle(gpointer data);
 
-WinFlashApp *winflash_app_new(void) {
-    WinFlashApp *app = g_new0(WinFlashApp, 1);
+IgnisApp *ignis_app_new(void) {
+    IgnisApp *app = g_new0(IgnisApp, 1);
     app->device_list = NULL;
     app->device_count = 0;
     app->flash_running = 0;
@@ -35,14 +35,14 @@ WinFlashApp *winflash_app_new(void) {
     return app;
 }
 
-void winflash_app_free(WinFlashApp *app) {
+void ignis_app_free(IgnisApp *app) {
     if (app->device_list) {
         device_list_free(app->device_list, app->device_count);
     }
     g_free(app);
 }
 
-void winflash_app_log(WinFlashApp *app, const char *fmt, ...) {
+void ignis_app_log(IgnisApp *app, const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
     char buf[1024];
@@ -62,11 +62,11 @@ static GtkWidget *create_header(void) {
     GtkWidget *header = gtk_header_bar_new();
     gtk_header_bar_set_show_title_buttons(GTK_HEADER_BAR(header), TRUE);
     gtk_header_bar_set_title_widget(GTK_HEADER_BAR(header),
-        gtk_label_new("WinFlash \xe2\x80\x94 Windows USB Creator"));
+        gtk_label_new("Ignis \xe2\x80\x94 Windows USB Creator"));
     return header;
 }
 
-static GtkWidget *create_iso_section(WinFlashApp *app) {
+static GtkWidget *create_iso_section(IgnisApp *app) {
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     gtk_widget_set_margin_start(box, 12);
     gtk_widget_set_margin_end(box, 12);
@@ -91,7 +91,7 @@ static GtkWidget *create_iso_section(WinFlashApp *app) {
     return box;
 }
 
-static GtkWidget *create_device_section(WinFlashApp *app) {
+static GtkWidget *create_device_section(IgnisApp *app) {
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     gtk_widget_set_margin_start(box, 12);
     gtk_widget_set_margin_end(box, 12);
@@ -117,7 +117,7 @@ static GtkWidget *create_device_section(WinFlashApp *app) {
     return box;
 }
 
-static GtkWidget *create_device_info_box(WinFlashApp *app) {
+static GtkWidget *create_device_info_box(IgnisApp *app) {
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     gtk_widget_set_margin_start(box, 118);
     gtk_widget_set_margin_end(box, 12);
@@ -128,7 +128,7 @@ static GtkWidget *create_device_info_box(WinFlashApp *app) {
     return box;
 }
 
-static GtkWidget *create_mode_section(WinFlashApp *app) {
+static GtkWidget *create_mode_section(IgnisApp *app) {
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     gtk_widget_set_margin_start(box, 12);
     gtk_widget_set_margin_end(box, 12);
@@ -166,7 +166,7 @@ static GtkWidget *create_mode_section(WinFlashApp *app) {
     return box;
 }
 
-static GtkWidget *create_progress_section(WinFlashApp *app) {
+static GtkWidget *create_progress_section(IgnisApp *app) {
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
     gtk_widget_set_margin_start(box, 12);
     gtk_widget_set_margin_end(box, 12);
@@ -195,7 +195,7 @@ static GtkWidget *create_progress_section(WinFlashApp *app) {
     return box;
 }
 
-static GtkWidget *create_log_section(WinFlashApp *app) {
+static GtkWidget *create_log_section(IgnisApp *app) {
     GtkWidget *frame = gtk_frame_new("Log");
     gtk_widget_set_margin_start(frame, 12);
     gtk_widget_set_margin_end(frame, 12);
@@ -219,9 +219,9 @@ static GtkWidget *create_log_section(WinFlashApp *app) {
     return frame;
 }
 
-void winflash_app_setup_window(WinFlashApp *app, GtkApplication *application) {
+void ignis_app_setup_window(IgnisApp *app, GtkApplication *application) {
     app->window = gtk_application_window_new(application);
-    gtk_window_set_title(GTK_WINDOW(app->window), "WinFlash \xe2\x80\x94 Windows USB Creator");
+    gtk_window_set_title(GTK_WINDOW(app->window), "Ignis \xe2\x80\x94 Windows USB Creator");
     gtk_window_set_default_size(GTK_WINDOW(app->window), 720, 580);
     gtk_window_set_resizable(GTK_WINDOW(app->window), TRUE);
 
@@ -241,14 +241,14 @@ void winflash_app_setup_window(WinFlashApp *app, GtkApplication *application) {
     gtk_window_set_child(GTK_WINDOW(app->window), vbox);
     gtk_widget_set_visible(app->window, TRUE);
 
-    winflash_app_log(app, "WinFlash v1.0 started");
+    ignis_app_log(app, "Ignis v1.0 started");
     if (geteuid() != 0) {
-        winflash_app_log(app, "WARNING: Not running as root. Device operations will fail.");
+        ignis_app_log(app, "WARNING: Not running as root. Device operations will fail.");
     }
     refresh_device_list(app);
 }
 
-void winflash_show_error(WinFlashApp *app, const char *title, const char *message) {
+void ignis_show_error(IgnisApp *app, const char *title, const char *message) {
     GtkAlertDialog *alert = gtk_alert_dialog_new("%s", title);
     gtk_alert_dialog_set_detail(alert, message);
     gtk_alert_dialog_show(alert, GTK_WINDOW(app->window));
@@ -257,25 +257,25 @@ void winflash_show_error(WinFlashApp *app, const char *title, const char *messag
 
 static void on_iso_changed(GtkEditable *ed, gpointer user_data) {
     (void)ed;
-    update_flash_button_state((WinFlashApp *)user_data);
+    update_flash_button_state((IgnisApp *)user_data);
 }
 
 static void on_device_changed(GObject *obj, GParamSpec *pspec, gpointer user_data) {
     (void)obj; (void)pspec;
-    update_ui_on_device_change((WinFlashApp *)user_data);
-    update_flash_button_state((WinFlashApp *)user_data);
+    update_ui_on_device_change((IgnisApp *)user_data);
+    update_flash_button_state((IgnisApp *)user_data);
 }
 
 static void on_mode_changed(GObject *obj, GParamSpec *pspec, gpointer user_data) {
     (void)obj; (void)pspec;
-    WinFlashApp *app = (WinFlashApp *)user_data;
+    IgnisApp *app = (IgnisApp *)user_data;
     guint sel = gtk_drop_down_get_selected(GTK_DROP_DOWN(app->mode_dropdown));
     if (sel < (guint)flash_mode_count()) {
         gtk_label_set_text(GTK_LABEL(app->desc_label), flash_mode_description((FlashMode)sel));
     }
 }
 
-static void refresh_device_list(WinFlashApp *app) {
+static void refresh_device_list(IgnisApp *app) {
     if (app->device_list) {
         device_list_free(app->device_list, app->device_count);
         app->device_list = NULL;
@@ -284,7 +284,7 @@ static void refresh_device_list(WinFlashApp *app) {
 
     Error err;
     if (device_list(&app->device_list, &app->device_count, &err) < 0) {
-        winflash_app_log(app, "Error listing devices: %s", err.message);
+        ignis_app_log(app, "Error listing devices: %s", err.message);
         GtkStringList *empty = gtk_string_list_new(NULL);
         gtk_string_list_append(empty, "Error listing devices");
         gtk_drop_down_set_model(GTK_DROP_DOWN(app->device_dropdown), G_LIST_MODEL(empty));
@@ -323,10 +323,10 @@ static void refresh_device_list(WinFlashApp *app) {
 
     update_ui_on_device_change(app);
     update_flash_button_state(app);
-    winflash_app_log(app, "Found %d device(s)", app->device_count);
+    ignis_app_log(app, "Found %d device(s)", app->device_count);
 }
 
-static void update_ui_on_device_change(WinFlashApp *app) {
+static void update_ui_on_device_change(IgnisApp *app) {
     guint sel = gtk_drop_down_get_selected(GTK_DROP_DOWN(app->device_dropdown));
     if (app->device_list && sel < (guint)app->device_count) {
         Device *d = &app->device_list[sel];
@@ -341,7 +341,7 @@ static void update_ui_on_device_change(WinFlashApp *app) {
     }
 }
 
-static void update_flash_button_state(WinFlashApp *app) {
+static void update_flash_button_state(IgnisApp *app) {
     if (app->flash_running) {
         gtk_widget_set_sensitive(app->flash_btn, TRUE);
         return;
@@ -361,7 +361,7 @@ static void update_flash_button_state(WinFlashApp *app) {
 }
 
 static void on_iso_dialog_response(GObject *dialog, GAsyncResult *result, gpointer user_data) {
-    WinFlashApp *app = (WinFlashApp *)user_data;
+    IgnisApp *app = (IgnisApp *)user_data;
     GFile *file = gtk_file_dialog_open_finish(GTK_FILE_DIALOG(dialog), result, NULL);
     if (file) {
         char *path = g_file_get_path(file);
@@ -376,7 +376,7 @@ static void on_iso_dialog_response(GObject *dialog, GAsyncResult *result, gpoint
 
 static void on_iso_browse_clicked(GtkButton *button, gpointer user_data) {
     (void)button;
-    WinFlashApp *app = (WinFlashApp *)user_data;
+    IgnisApp *app = (IgnisApp *)user_data;
 
     GtkFileDialog *dialog = gtk_file_dialog_new();
     gtk_file_dialog_set_title(dialog, "Select Windows ISO");
@@ -394,13 +394,13 @@ static void on_iso_browse_clicked(GtkButton *button, gpointer user_data) {
 
 static void on_refresh_clicked(GtkButton *button, gpointer user_data) {
     (void)button;
-    WinFlashApp *app = (WinFlashApp *)user_data;
-    winflash_app_log(app, "Refreshing device list...");
+    IgnisApp *app = (IgnisApp *)user_data;
+    ignis_app_log(app, "Refreshing device list...");
     refresh_device_list(app);
 }
 
 static int flash_progress_cb(FlashStage stage, int percent, const char *status, void *user_data) {
-    WinFlashApp *app = (WinFlashApp *)user_data;
+    IgnisApp *app = (IgnisApp *)user_data;
     if (app->cancel_requested) return -1;
     app->last_stage = stage;
     app->last_percent = percent;
@@ -413,7 +413,7 @@ static int flash_progress_cb(FlashStage stage, int percent, const char *status, 
 }
 
 static gboolean update_progress_gui(gpointer user_data) {
-    WinFlashApp *app = (WinFlashApp *)user_data;
+    IgnisApp *app = (IgnisApp *)user_data;
     app->idle_queued = 0;
     if (!app->flash_running) return G_SOURCE_REMOVE;
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(app->progress_bar), app->last_percent / 100.0);
@@ -423,11 +423,11 @@ static gboolean update_progress_gui(gpointer user_data) {
 }
 
 typedef struct {
-    WinFlashApp *app;
+    IgnisApp *app;
     FlashResult result;
 } FlashThreadData;
 
-static void flash_completed(WinFlashApp *app, FlashResult *result) {
+static void flash_completed(IgnisApp *app, FlashResult *result) {
     app->flash_running = 0;
     gtk_widget_set_sensitive(app->flash_btn, TRUE);
     gtk_button_set_label(GTK_BUTTON(app->flash_btn), "Flash");
@@ -436,8 +436,8 @@ static void flash_completed(WinFlashApp *app, FlashResult *result) {
         gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(app->progress_bar), 1.0);
         gtk_progress_bar_set_text(GTK_PROGRESS_BAR(app->progress_bar), "Complete!");
         gtk_label_set_text(GTK_LABEL(app->status_label), "Windows USB created successfully!");
-        winflash_app_log(app, "SUCCESS: Windows USB created!");
-        winflash_app_log(app, "  Files: %d  bootmgr: %s  bootx64: %s  sources: %s",
+        ignis_app_log(app, "SUCCESS: Windows USB created!");
+        ignis_app_log(app, "  Files: %d  bootmgr: %s  bootx64: %s  sources: %s",
             result->verify.total_files,
             result->verify.bootmgr_exists ? "OK" : "MISSING",
             result->verify.bootx64_exists ? "OK" : "MISSING",
@@ -446,7 +446,7 @@ static void flash_completed(WinFlashApp *app, FlashResult *result) {
         gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(app->progress_bar), 0.0);
         gtk_progress_bar_set_text(GTK_PROGRESS_BAR(app->progress_bar), "Failed");
         gtk_label_set_text(GTK_LABEL(app->status_label), "Flash failed!");
-        winflash_app_log(app, "FAILED: %s", result->error_message);
+        ignis_app_log(app, "FAILED: %s", result->error_message);
     }
 }
 
@@ -466,49 +466,49 @@ static gpointer flash_thread_func(gpointer user_data) {
 
 static void on_flash_clicked(GtkButton *button, gpointer user_data) {
     (void)button;
-    WinFlashApp *app = (WinFlashApp *)user_data;
+    IgnisApp *app = (IgnisApp *)user_data;
 
     if (app->flash_running) {
         app->cancel_requested = 1;
         gtk_button_set_label(GTK_BUTTON(app->flash_btn), "Cancelling...");
         gtk_widget_set_sensitive(app->flash_btn, FALSE);
-        winflash_app_log(app, "Cancelling flash...");
+        ignis_app_log(app, "Cancelling flash...");
         return;
     }
 
     const char *iso_path = gtk_editable_get_text(GTK_EDITABLE(app->iso_entry));
     if (!iso_path || !iso_path[0]) {
-        winflash_show_error(app, "No ISO selected", "Please select a Windows ISO file first.");
+        ignis_show_error(app, "No ISO selected", "Please select a Windows ISO file first.");
         return;
     }
     if (!path_exists(iso_path)) {
-        winflash_show_error(app, "ISO not found", "The specified ISO file does not exist.");
+        ignis_show_error(app, "ISO not found", "The specified ISO file does not exist.");
         return;
     }
 
     guint dev_sel = gtk_drop_down_get_selected(GTK_DROP_DOWN(app->device_dropdown));
     if (dev_sel >= (guint)app->device_count || dev_sel == GTK_INVALID_LIST_POSITION) {
-        winflash_show_error(app, "No device selected", "Please select a target device.");
+        ignis_show_error(app, "No device selected", "Please select a target device.");
         return;
     }
 
     Device *dev = &app->device_list[dev_sel];
     if (dev->is_system_disk) {
-        winflash_show_error(app, "System disk",
+        ignis_show_error(app, "System disk",
                            "Cannot flash the system disk. Select a different device.");
         return;
     }
 
     if (geteuid() != 0) {
-        winflash_show_error(app, "Permission denied",
-                           "WinFlash must be run as root for flashing.\nUse: sudo winflash-gui");
+        ignis_show_error(app, "Permission denied",
+                           "Ignis must be run as root for flashing.\nUse: sudo ignis-gui");
         return;
     }
 
     IsoInfo iso;
     Error err;
     if (iso_parse(iso_path, &iso, &err) < 0) {
-        winflash_show_error(app, "Invalid ISO", err.message);
+        ignis_show_error(app, "Invalid ISO", err.message);
         return;
     }
 
@@ -536,7 +536,7 @@ static void on_flash_clicked(GtkButton *button, gpointer user_data) {
     data->app = app;
     memset(&data->result, 0, sizeof(data->result));
 
-    winflash_app_log(app, "Starting flash: ISO=%s Device=%s Mode=%s",
+    ignis_app_log(app, "Starting flash: ISO=%s Device=%s Mode=%s",
         iso_path, dev->device_path, flash_mode_name((FlashMode)mode_sel));
 
     app->flash_thread = g_thread_new("flash-worker", flash_thread_func, data);

@@ -15,8 +15,8 @@ CORE_OBJS = $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(CORE_SRCS))
 GUI_SRCS = $(shell find $(SRCDIR)/gui -name '*.c' 2>/dev/null)
 GUI_OBJS = $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(GUI_SRCS))
 
-CLI_TARGET = winflash
-GUI_TARGET = winflash-gui
+CLI_TARGET = ignis
+GUI_TARGET = ignis-gui
 
 HAVE_GUI := $(shell pkg-config --exists gtk4 2>/dev/null && echo yes || echo no)
 

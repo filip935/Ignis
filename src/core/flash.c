@@ -91,12 +91,12 @@ FlashResult flash_run(FlashConfig *cfg) {
         result.success = 0;
         result.error_code = ERR_PERMISSION_DENIED;
         snprintf(result.error_message, sizeof(result.error_message),
-                 "WinFlash must be run as root. Use sudo.");
+                 "Ignis must be run as root. Use sudo.");
         result.failed_stage = STAGE_NONE;
         return result;
     }
 
-    report_progress(cfg, STAGE_NONE, 0, "Starting WinFlash");
+    report_progress(cfg, STAGE_NONE, 0, "Starting Ignis");
 
     report_progress(cfg, STAGE_UNMOUNT, 2, "Unmounting existing partitions");
     if (device_unmount_all(cfg->device_path, NULL) < 0) {

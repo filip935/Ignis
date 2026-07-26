@@ -138,7 +138,7 @@ int wim_fix_bootx64(const char *mount_point, Error *err) {
     find_bootmgfw(mount_point, src, sizeof(src));
 
     if (src[0] && (strstr(src, ".wim") || strstr(src, ".esd"))) {
-        char tmp_dir[] = "/tmp/winflash-efi-fix-XXXXXX";
+        char tmp_dir[] = "/tmp/ignis-efi-fix-XXXXXX";
         if (mkdtemp(tmp_dir)) {
             ExecResult res;
             if (exec_cmd(&res, NULL, "wimlib-imagex", "extract",

@@ -1,5 +1,5 @@
-#ifndef WINFLASH_PARTITION_H
-#define WINFLASH_PARTITION_H
+#ifndef IGNIS_PARTITION_H
+#define IGNIS_PARTITION_H
 
 #include "../util/error.h"
 #include <stdint.h>

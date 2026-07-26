@@ -1,5 +1,5 @@
-#ifndef WINFLASH_UTIL_H
-#define WINFLASH_UTIL_H
+#ifndef IGNIS_UTIL_H
+#define IGNIS_UTIL_H
 
 #include "error.h"
 #include <stddef.h>

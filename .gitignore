@@ -1,6 +1,8 @@
 *.o
 *.obj
 obj/
+ignis
+ignis-gui
 winflash
 winflash-gui
 build/

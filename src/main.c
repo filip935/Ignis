@@ -175,9 +175,9 @@ int main(int argc, char *argv[]) {
     cfg.progress_cb = progress_callback;
 
     if (argc > 1 && (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0)) {
-        printf("WinFlash - Create bootable Windows USB drives on Linux\n");
+        printf("Ignis - Create bootable Windows USB drives on Linux\n");
         printf("\nUsage:\n");
-        printf("  winflash [options]\n");
+        printf("  ignis [options]\n");
         printf("\nOptions:\n");
         printf("  -h, --help        Show this help\n");
         printf("  -l, --list        List available USB devices\n");
@@ -186,9 +186,9 @@ int main(int argc, char *argv[]) {
         printf("  -m <mode>         Flash mode: mbr (default), gpt, dual, ntfs\n");
         printf("  -y                Skip confirmation prompts\n");
         printf("\nExamples:\n");
-        printf("  sudo winflash                     Interactive mode\n");
-        printf("  sudo winflash -i Win10.iso -d /dev/sdb -y\n");
-        printf("  sudo winflash --list\n");
+        printf("  sudo ignis                     Interactive mode\n");
+        printf("  sudo ignis -i Win10.iso -d /dev/sdb -y\n");
+        printf("  sudo ignis --list\n");
         return 0;
     }
 

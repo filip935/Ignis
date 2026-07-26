@@ -1,5 +1,5 @@
-#ifndef WINFLASH_BOOTLOADER_H
-#define WINFLASH_BOOTLOADER_H
+#ifndef IGNIS_BOOTLOADER_H
+#define IGNIS_BOOTLOADER_H
 
 #include "../util/error.h"
 #include "partition.h"

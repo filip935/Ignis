@@ -1,5 +1,5 @@
-#ifndef WINFLASH_VERIFY_H
-#define WINFLASH_VERIFY_H
+#ifndef IGNIS_VERIFY_H
+#define IGNIS_VERIFY_H
 
 #include "../util/error.h"
 
