@@ -1,4 +1,4 @@
-# WinFlash ⚡
+# Ignis ⚡
 
 A lightweight, native C GUI utility for quickly flashing Windows ISOs onto USB drives on Linux.
 
