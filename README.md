@@ -15,7 +15,10 @@ A lightweight, native C GUI utility for quickly flashing Windows ISOs onto USB d
 Make sure you have the required dependencies installed on your system:
 
 # Arch Linux / Manjaro
-sudo pacman -S gtk4 parted dosfstools ntfs-3g wimlib util-linux grub
+sudo pacman -S fuse2
 
 # Ubuntu / Debian
-sudo apt install libgtk-4-dev parted dosfstools ntfs-3g wimtools util-linux grub-pc-bin grub-efi-amd64-bin
+sudo apt install libfuse2
+
+# Red Hat / Fedora
+sudo dnf install fuse
