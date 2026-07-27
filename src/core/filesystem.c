@@ -10,7 +10,7 @@ int filesystem_format(const char *partition_path, FlashMode mode, Error *err) {
         case FLASH_MODE_MBR_FAT32:
         case FLASH_MODE_GPT_FAT32: {
             ExecResult res;
-            int ret = exec_cmd(&res, err, "mkfs.vfat", "-F32", "-n", "IGNIS", partition_path, NULL);
+            int ret = exec_cmd(&res, err, "mkfs.vfat", "-F32", "-n", "NIHILFLASH", partition_path, NULL);
             exec_result_free(&res);
             if (ret < 0) ERR_RETURN(err, ERR_FORMAT_FAILED, "Failed to format %s as FAT32", partition_path);
             break;
@@ -22,6 +22,8 @@ int filesystem_format(const char *partition_path, FlashMode mode, Error *err) {
             if (ret < 0) ERR_RETURN(err, ERR_FORMAT_FAILED, "Failed to format ESP partition as FAT32");
             break;
         }
+        case FLASH_MODE_RAW_DD:
+            return 0;
         default:
             ERR_RETURN(err, ERR_UNKNOWN, "Unknown flash mode");
     }

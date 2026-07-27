@@ -1,5 +1,5 @@
-#ifndef IGNIS_FLASH_H
-#define IGNIS_FLASH_H
+#ifndef NIHILFLASH_FLASH_H
+#define NIHILFLASH_FLASH_H
 
 #include "../util/error.h"
 #include "device.h"

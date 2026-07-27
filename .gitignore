@@ -1,14 +1,15 @@
 *.o
 *.obj
 obj/
-ignis
-ignis-gui
+nihilflash-gui
 winflash
 winflash-gui
 build/
 .vscode/
 .idea/
+*.AppImage
 *.swp
 *.swo
 src/core/bootdata.h
 /tmp/
+AppDir/

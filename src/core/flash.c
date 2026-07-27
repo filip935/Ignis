@@ -91,12 +91,12 @@ FlashResult flash_run(FlashConfig *cfg) {
         result.success = 0;
         result.error_code = ERR_PERMISSION_DENIED;
         snprintf(result.error_message, sizeof(result.error_message),
-                 "Ignis must be run as root. Use sudo.");
+                 "NihilFlash must be run as root. Use sudo.");
         result.failed_stage = STAGE_NONE;
         return result;
     }
 
-    report_progress(cfg, STAGE_NONE, 0, "Starting Ignis");
+    report_progress(cfg, STAGE_NONE, 0, "Starting NihilFlash");
 
     report_progress(cfg, STAGE_UNMOUNT, 2, "Unmounting existing partitions");
     if (device_unmount_all(cfg->device_path, NULL) < 0) {
@@ -108,6 +108,28 @@ FlashResult flash_run(FlashConfig *cfg) {
         result.error_code = ERR_CANCELLED;
         snprintf(result.error_message, sizeof(result.error_message), "Cancelled at unmount stage");
         result.failed_stage = STAGE_UNMOUNT;
+        return result;
+    }
+
+    if (cfg->mode == FLASH_MODE_RAW_DD) {
+        report_progress(cfg, STAGE_WIPE, 10, "Writing ISO to device with dd...");
+        char dd_cmd[4096];
+        snprintf(dd_cmd, sizeof(dd_cmd),
+                 "dd if='%s' of='%s' bs=4M status=progress conv=fsync 2>&1",
+                 cfg->iso_path, cfg->device_path);
+        int dd_ret = exec_cmd(NULL, NULL, "sh", "-c", dd_cmd, NULL);
+        sync();
+        if (dd_ret < 0) {
+            result.success = 0;
+            result.error_code = ERR_COPY_FAILED;
+            snprintf(result.error_message, sizeof(result.error_message),
+                     "dd write failed for %s", cfg->iso_path);
+            result.failed_stage = STAGE_COPY_FILES;
+            return result;
+        }
+        report_progress(cfg, STAGE_DONE, 100, "Complete!");
+        result.success = 1;
+        result.verify.total_files = 1;
         return result;
     }
 

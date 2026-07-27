@@ -156,9 +156,9 @@ static int fix_zero_bootx64(const char *mount_point, Error *err) {
         int ret = exec_cmd(&res, err, "wimlib-imagex", "extract",
                           mount_point, "/sources/install.wim", "1",
                           "/Windows/Boot/EFI/bootmgfw.efi",
-                          "--dest-dir=/tmp/ignis-efi-fix", NULL);
+                          "--dest-dir=/tmp/nihilflash-efi-fix", NULL);
         if (ret == 0) {
-            exec_cmd(NULL, NULL, "cp", "/tmp/ignis-efi-fix/bootmgfw.efi", bootx64_path, NULL);
+            exec_cmd(NULL, NULL, "cp", "/tmp/nihilflash-efi-fix/bootmgfw.efi", bootx64_path, NULL);
         }
         exec_result_free(&res);
     }

@@ -1,5 +1,5 @@
-#ifndef IGNIS_GUI_H
-#define IGNIS_GUI_H
+#ifndef NIHILFLASH_GUI_H
+#define NIHILFLASH_GUI_H
 
 #include "../core/flash.h"
 #include "../core/device.h"
@@ -30,12 +30,12 @@ typedef struct {
     char last_status[256];
     FlashStage last_stage;
     volatile int idle_queued;
-} IgnisApp;
+} NihilApp;
 
-IgnisApp *ignis_app_new(void);
-void ignis_app_free(IgnisApp *app);
-void ignis_app_setup_window(IgnisApp *app, GtkApplication *application);
-void ignis_app_show_error(GtkWidget *parent, const char *title, const char *message);
-void ignis_app_log(IgnisApp *app, const char *fmt, ...);
+NihilApp *nihil_app_new(void);
+void nihil_app_free(NihilApp *app);
+void nihil_app_setup_window(NihilApp *app, GtkApplication *application);
+void nihil_app_show_error(NihilApp *app, const char *title, const char *message);
+void nihil_app_log(NihilApp *app, const char *fmt, ...);
 
 #endif

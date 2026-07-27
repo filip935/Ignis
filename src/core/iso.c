@@ -33,12 +33,7 @@ int iso_parse(const char *path, IsoInfo *info, Error *err) {
     snprintf(sources_path, sizeof(sources_path), "%s/sources", tmp_dir);
 
     struct stat sources_st;
-    if (stat(sources_path, &sources_st) < 0 || !S_ISDIR(sources_st.st_mode)) {
-        iso_unmount(tmp_dir, NULL);
-        rmdir(tmp_dir);
-        free(tmp_dir);
-        ERR_RETURN(err, ERR_ISO_INVALID, "Not a Windows ISO: missing sources/ directory");
-    }
+    int has_sources = (stat(sources_path, &sources_st) == 0 && S_ISDIR(sources_st.st_mode));
 
     char wim_path[1080];
     char esd_path[1080];
@@ -48,46 +43,83 @@ int iso_parse(const char *path, IsoInfo *info, Error *err) {
     info->has_install_wim = path_exists(wim_path);
     info->has_install_esd = path_exists(esd_path);
 
-    if (!info->has_install_wim && !info->has_install_esd) {
-        iso_unmount(tmp_dir, NULL);
-        rmdir(tmp_dir);
-        free(tmp_dir);
-        ERR_RETURN(err, ERR_ISO_INVALID, "Not a Windows ISO: missing sources/install.wim or install.esd");
-    }
+    if (has_sources && (info->has_install_wim || info->has_install_esd)) {
+        info->type = ISO_TYPE_WINDOWS;
 
-    if (info->has_install_wim) {
-        struct stat wim_st;
-        stat(wim_path, &wim_st);
-        info->install_wim_size = wim_st.st_size;
-        info->needs_wim_split = ((unsigned long long)wim_st.st_size > 4000000000ULL);
-    }
+        if (info->has_install_wim) {
+            struct stat wim_st;
+            stat(wim_path, &wim_st);
+            info->install_wim_size = wim_st.st_size;
+            info->needs_wim_split = ((unsigned long long)wim_st.st_size > 4000000000ULL);
+        }
 
-    char efi_boot_path[1080];
-    snprintf(efi_boot_path, sizeof(efi_boot_path), "%s/efi/boot/bootx64.efi", tmp_dir);
+        char efi_boot_path[1080];
+        snprintf(efi_boot_path, sizeof(efi_boot_path), "%s/efi/boot/bootx64.efi", tmp_dir);
 
-    if (path_exists(efi_boot_path)) {
-        info->bootx64_efi_exists = 1;
-        struct stat efi_st;
-        stat(efi_boot_path, &efi_st);
-        info->bootx64_efi_zero = (efi_st.st_size == 0);
-    }
+        if (path_exists(efi_boot_path)) {
+            info->bootx64_efi_exists = 1;
+            struct stat efi_st;
+            stat(efi_boot_path, &efi_st);
+            info->bootx64_efi_zero = (efi_st.st_size == 0);
+        }
 
-    snprintf(info->windows_version, sizeof(info->windows_version), "Windows");
-    char setup_ini[1080];
-    snprintf(setup_ini, sizeof(setup_ini), "%s/sources/setup.exe", tmp_dir);
-    if (path_exists(setup_ini)) {
-        ExecResult res;
-        memset(&res, 0, sizeof(res));
-        if (exec_cmd(&res, NULL, "sh", "-c",
-                    "strings '", tmp_dir, "/sources/setup.exe' 2>/dev/null | grep -oP 'Microsoft Windows [0-9]+' | head -1",
-                    NULL) == 0 && res.stdout_buf) {
-            char *nl = strchr(res.stdout_buf, '\n');
-            if (nl) *nl = '\0';
-            if (res.stdout_buf[0]) {
-                snprintf(info->windows_version, sizeof(info->windows_version), "%s", res.stdout_buf);
+        snprintf(info->version, sizeof(info->version), "Windows");
+        char setup_ini[1080];
+        snprintf(setup_ini, sizeof(setup_ini), "%s/sources/setup.exe", tmp_dir);
+        if (path_exists(setup_ini)) {
+            ExecResult res;
+            memset(&res, 0, sizeof(res));
+            if (exec_cmd(&res, NULL, "sh", "-c",
+                        "strings '", tmp_dir, "/sources/setup.exe' 2>/dev/null | grep -oP 'Microsoft Windows [0-9]+' | head -1",
+                        NULL) == 0 && res.stdout_buf) {
+                char *nl = strchr(res.stdout_buf, '\n');
+                if (nl) *nl = '\0';
+                if (res.stdout_buf[0]) {
+                    snprintf(info->version, sizeof(info->version), "%s", res.stdout_buf);
+                }
+            }
+            exec_result_free(&res);
+        }
+    } else {
+        char isolinux_path[1080];
+        snprintf(isolinux_path, sizeof(isolinux_path), "%s/isolinux/isolinux.bin", tmp_dir);
+        char boot_vmlinuz[1080];
+        snprintf(boot_vmlinuz, sizeof(boot_vmlinuz), "%s/boot/vmlinuz", tmp_dir);
+        char disk_info[1080];
+        snprintf(disk_info, sizeof(disk_info), "%s/.disk/info", tmp_dir);
+        char liveos[1080];
+        snprintf(liveos, sizeof(liveos), "%s/LiveOS", tmp_dir);
+        if (path_exists(isolinux_path) || path_exists(boot_vmlinuz) ||
+            path_exists(disk_info) || path_exists(liveos)) {
+            info->type = ISO_TYPE_LINUX;
+            snprintf(info->version, sizeof(info->version), "Linux");
+            if (path_exists(disk_info)) {
+                ExecResult res;
+                memset(&res, 0, sizeof(res));
+                if (exec_cmd(&res, NULL, "head", "-1", disk_info, NULL) == 0 && res.stdout_buf) {
+                    char *nl = strchr(res.stdout_buf, '\n');
+                    if (nl) *nl = '\0';
+                    if (res.stdout_buf[0])
+                        snprintf(info->version, sizeof(info->version), "%s", res.stdout_buf);
+                }
+                exec_result_free(&res);
+            }
+        } else {
+            char freebsd_boot[1080];
+            snprintf(freebsd_boot, sizeof(freebsd_boot), "%s/boot/loader", tmp_dir);
+            char freebsd_dist[1080];
+            snprintf(freebsd_dist, sizeof(freebsd_dist), "%s/usr/freebsd-dist", tmp_dir);
+            char openbsd_bsd[1080];
+            snprintf(openbsd_bsd, sizeof(openbsd_bsd), "%s/bsd", tmp_dir);
+
+            if (path_exists(freebsd_boot) || path_exists(freebsd_dist) || path_exists(openbsd_bsd)) {
+                info->type = ISO_TYPE_BSD;
+                snprintf(info->version, sizeof(info->version), "BSD");
+            } else {
+                info->type = ISO_TYPE_UNKNOWN;
+                snprintf(info->version, sizeof(info->version), "Unknown ISO");
             }
         }
-        exec_result_free(&res);
     }
 
     info->valid = 1;

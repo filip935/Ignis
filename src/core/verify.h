@@ -1,5 +1,5 @@
-#ifndef IGNIS_VERIFY_H
-#define IGNIS_VERIFY_H
+#ifndef NIHILFLASH_VERIFY_H
+#define NIHILFLASH_VERIFY_H
 
 #include "../util/error.h"
 

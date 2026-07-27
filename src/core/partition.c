@@ -12,6 +12,7 @@ const char *flash_mode_name(FlashMode mode) {
         case FLASH_MODE_GPT_FAT32: return "GPT+FAT32";
         case FLASH_MODE_GPT_DUAL:  return "GPT+Dual";
         case FLASH_MODE_GPT_NTFS:  return "GPT+NTFS";
+        case FLASH_MODE_RAW_DD:    return "Raw DD";
         default: return "Unknown";
     }
 }
@@ -30,6 +31,9 @@ const char *flash_mode_description(FlashMode mode) {
     case FLASH_MODE_GPT_NTFS:
         return "GPT partition table with NTFS for data + embedded UEFI:NTFS shim on ESP. "
                "No WIM splitting needed. UEFI only, Secure Boot compatible. (Requires ~8 MiB ESP)";
+    case FLASH_MODE_RAW_DD:
+        return "Raw dd write. Wipes entire device and writes ISO directly. "
+               "Recommended for Linux and BSD ISOs.";
     default: return "";
     }
 }
@@ -56,6 +60,8 @@ int partition_create(const char *device_path, FlashMode mode, Error *err) {
     snprintf(devname, sizeof(devname), "%s", p);
 
     switch (mode) {
+        case FLASH_MODE_RAW_DD:
+            return 0;
         case FLASH_MODE_MBR_FAT32: {
             ExecResult res;
             memset(&res, 0, sizeof(res));

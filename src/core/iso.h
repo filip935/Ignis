@@ -1,13 +1,21 @@
-#ifndef IGNIS_ISO_H
-#define IGNIS_ISO_H
+#ifndef NIHILFLASH_ISO_H
+#define NIHILFLASH_ISO_H
 
 #include "../util/error.h"
 #include <stdint.h>
 
+typedef enum {
+    ISO_TYPE_WINDOWS,
+    ISO_TYPE_LINUX,
+    ISO_TYPE_BSD,
+    ISO_TYPE_UNKNOWN
+} IsoType;
+
 typedef struct {
     char iso_path[1024];
     int valid;
-    char windows_version[64];
+    IsoType type;
+    char version[64];
     int has_install_wim;
     int has_install_esd;
     uint64_t install_wim_size;

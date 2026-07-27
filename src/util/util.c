@@ -178,7 +178,7 @@ int mkdir_p(const char *path, mode_t mode) {
 
 char *temp_dir_template(const char *prefix) {
     char *template = NULL;
-    if (asprintf(&template, "/tmp/ignis-%s-XXXXXX", prefix) < 0) return NULL;
+    if (asprintf(&template, "/tmp/nihilflash-%s-XXXXXX", prefix) < 0) return NULL;
     return template;
 }
 

@@ -1,5 +1,5 @@
-#ifndef IGNIS_ERROR_H
-#define IGNIS_ERROR_H
+#ifndef NIHILFLASH_ERROR_H
+#define NIHILFLASH_ERROR_H
 
 typedef enum {
     ERR_SUCCESS = 0,

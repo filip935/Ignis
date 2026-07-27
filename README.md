@@ -1,13 +1,14 @@
-# Ignis ⚡
+# NihilFlash
 
-A lightweight, native C GUI utility for quickly flashing Windows ISOs onto USB drives on Linux.
+A lightweight, native C utility for flashing ISOs onto USB drives on Linux.
 
 ## Features
-- **Fast & Minimal:** Written in C with a tiny binary (~215KB).
-- **Native GUI:** Built natively for Linux desktop environments (GTK4).
+- **Windows ISOs:** Full support with MBR/GPT partition tables, FAT32/NTFS, UEFI/Legacy boot, WIM splitting
+- **Linux ISOs:** Raw dd writing for Ubuntu, Fedora, Arch, and more
+- **BSD ISOs:** Raw dd writing for FreeBSD, OpenBSD, NetBSD
+- **Fast & Minimal:** Written in C with a tiny binary
+- **Native GUI:** Built natively for Linux desktop environments (GTK4)
 - **Open Source:** Released under the MIT License.
-  
-<img width="722" height="582" alt="Screenshot_2026-07-25_12-47-59" src="https://github.com/user-attachments/assets/f8ee7c31-1834-4fe2-98ee-f007f91920e1" />
 
 ## Prerequisites
 
