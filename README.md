@@ -15,7 +15,7 @@ A lightweight, native C utility for flashing ISOs onto USB drives on Linux.
 Make sure you have the required dependencies installed on your system:
 
 # Arch Linux / Manjaro
-sudo pacman -S gtk4 parted dosfstools ntfs-3g wimlib util-linux grub
+sudo pacman -S fuse2
 
 # Ubuntu / Debian
-sudo apt install libgtk-4-dev parted dosfstools ntfs-3g wimtools util-linux grub-pc-bin grub-efi-amd64-bin
+sudo apt install libfuse2
